@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LLM API Demo Frontend</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin: 24px;
+      max-width: 900px;
+    }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    input, textarea, button { font-size: 14px; padding: 10px; }
+    input, textarea { width: 100%; box-sizing: border-box; }
+    .col { flex: 1 1 280px; }
+    textarea { min-height: 110px; }
+    button { cursor: pointer; }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 14px;
+    }
+    .muted { color: #666; font-size: 12px; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+
+    /* ✅ 关键：隐藏 Base URL */
+    .hide-baseurl {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>LLM API Demo</h2>
+
+  <div class="muted">
+    接口：<code>POST /chat</code>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <!-- ✅ X-API-Key：保留 -->
+      <div class="col">
+        <label>X-API-Key（你的服务鉴权 key）</label>
+        <input id="apiKey" placeholder="例如：demo-client-key-123" />
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>Message</label>
+    <textarea
+      id="message"
+      placeholder="输入要问模型的话...（Ctrl/⌘ + Enter 发送）"
+    ></textarea>
+    <div class="row" style="margin-top: 10px;">
+    <button id="sendBtn" type="button">发送</button>
+    <button id="clearBtn" type="button">清空</button>
+      <span class="muted" id="status"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="muted">Response</div>
+    <pre id="output">{}</pre>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+async function callChat() {
+  const apiKey = $("apiKey").value.trim();
+  const message = $("message").value.trim();
+  
+  if (!message) {
+    alert("message 不能为空");
+    return;
+  }
+
+  if (!apiKey) {
+    alert("请填写 X-API-Key");
+    return;
+  }
+
+  $("status").textContent = "请求中...";
+  $("sendBtn").disabled = true;
+
+  try {
+    const headers = { "Content-Type": "application/json" };
+    if (apiKey) headers["X-API-Key"] = apiKey;
+
+    const resp = await fetch("/chat", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ message }),
+    });
+
+    const latency = resp.headers.get("x-latency-ms");
+    const text = await resp.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = { raw: text }; }
+
+    if (!resp.ok) {
+      $("output").textContent = JSON.stringify({
+        status: resp.status,
+        error: data,
+        _latency_ms: latency
+      }, null, 2);
+    } else {
+      $("output").textContent = JSON.stringify(data, null, 2);
+    }
+  } catch (e) {
+    $("output").textContent = JSON.stringify({ error: String(e) }, null, 2);
+  } finally {
+    $("status").textContent = "";
+    $("sendBtn").disabled = false;
+  }
+}
+
+
+  $("sendBtn").addEventListener("click", callChat);
+  $("clearBtn").addEventListener("click", () => {
+    $("message").value = "";
+    $("output").textContent = "{}";
+  });
+
+  $("message").addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") callChat();
+  });
+</script>
+</body>
+</html>

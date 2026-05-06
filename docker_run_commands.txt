@@ -1,0 +1,41 @@
+
+# Build
+docker build -t llm-api-demo:latest .
+
+
+#Local testing
+docker run --env-file .env -p 8000:8000 llm-api-demo:latest
+
+# Login
+aws ecr get-login-password --region us-east-2 |
+  docker login --username AWS --password-stdin 366493038990.dkr.ecr.us-east-2.amazonaws.com
+
+# Tag so that it can be pushed:
+docker tag llm-api-demo:latest 366493038990.dkr.ecr.us-east-2.amazonaws.com/llm-api-demo:latest
+
+# push
+docker push 366493038990.dkr.ecr.us-east-2.amazonaws.com/llm-api-demo:latest
+
+# New container update:
+ECS → Cluster → Service → Update
+
+
+curl -i http://http://llm-api-demo-tg-1286349367.us-east-2.elb.amazonaws.com//chat \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: demo-client-key-123" \
+  -d "{\"message\":\"hi\"}"
+
+demo website: weber-llmdemo.xyz
+
+langchain，工程化。设计一个材料，task，通过AI去Breakdown.
+
+Skills in claude code.
+在Agent system上有一定的开发背景。
+很难确定客户需求。
+置信度，什么时候Human expert。
+最大诉求人要聪明。
+
+今天的这个时代的全栈工程师。
+
+AI会把很多的Job role绑定。原来程序员会更像产品经理。
+完成度 > 工程质量。
