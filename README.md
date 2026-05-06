@@ -202,12 +202,6 @@ curl -X POST http://localhost:8000/chat \
 
 也就是说，当前虽然运行在 ECS Fargate，但整体设计并没有和某一种单一运行时强绑定。
 
-## 适合写在简历 / 项目介绍里的表述
-
-可参考下面这版项目描述：
-
-> 云原生容器化 LLM API 服务 Demo。使用 FastAPI + Pydantic 封装聊天接口与健康检查接口，通过 Docker 固化 Python 运行环境与启动方式，遵循无状态服务设计，支持本地、测试与云上环境一致运行。镜像构建后推送至 AWS ECR，并部署到 ECS Fargate，通过 ECS Service 管理副本与 Rolling Update；结合 ALB 健康检查、Secrets Manager 密钥注入、IAM Task Role 最小权限控制及 CloudWatch Logs 日志采集，实现面向云部署的基础工程化闭环。使用 pytest + FastAPI TestClient 覆盖核心路由与鉴权逻辑，并通过自定义 Middleware 输出请求耗时，支持基础可观测性。
-
 ## Demo 边界说明
 
 这是一个演示项目，因此当前更关注“最小可运行闭环”而不是“大而全平台能力”。例如：
